@@ -1,0 +1,584 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>#ReSet</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #111827; --card-color: #1f2937; --text-color: #f3f4f6;
+            --text-muted-color: #9ca3af; --border-color: #374151; --primary-color: #3b82f6;
+            --input-bg: #374151; --tab-active-border: #3b82f6; --tab-inactive-text: #9ca3af;
+        }
+        html:not(.dark) {
+            --bg-color: #f3f4f6; --card-color: #ffffff; --text-color: #111827;
+            --text-muted-color: #4b5563; --border-color: #d1d5db; --input-bg: #e5e7eb;
+            --tab-active-border: #3b82f6; --tab-inactive-text: #6b7280;
+        }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); color: var(--text-color); transition: background-color 0.3s, color 0.3s; }
+        .card { background-color: var(--card-color); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 1.5rem; margin-bottom: 1rem; transition: all 0.2s ease-in-out; }
+        .edit-mode { box-shadow: 0 0 20px rgba(34, 197, 94, 0.4); border-color: #22c55e !important; }
+        .filter-checkbox:checked + label, .profile-radio:checked + label { background-color: #3b82f6; border-color: #1d4ed8; color: white; }
+        input, select, textarea { background-color: var(--input-bg); border-color: var(--border-color); }
+        .sortable-ghost { opacity: 0.4; background: #4f46e5; border-radius: 0.5rem; }
+        .block-card, .song-item { cursor: grab; }
+        .tab-btn {
+            padding: 0.75rem 1rem; font-size: 1.125rem; font-weight: 600;
+            border-bottom: 3px solid transparent; color: var(--tab-inactive-text);
+            transition: all 0.2s ease-in-out; cursor: pointer;
+        }
+        .tab-btn.active-tab { color: var(--text-color); border-bottom-color: var(--tab-active-border); }
+        .modal-overlay { background-color: rgba(0, 0, 0, 0.7); transition: opacity 0.3s ease; }
+    </style>
+</head>
+<body>
+    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+        <header class="text-center mb-6 flex justify-between items-center">
+             <div></div>
+            <div>
+                <h1 class="text-4xl md:text-5xl font-bold text-blue-500">#ReSet</h1>
+                <p style="color: var(--text-muted-color);" class="mt-2">Seu Repertório, Seu Setlist</p>
+            </div>
+            <button id="theme-toggle" class="p-2 rounded-full" style="background-color: var(--input-bg);">
+                <svg id="theme-icon-sun" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                <svg id="theme-icon-moon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+            </button>
+        </header>
+
+        <div class="mb-8 border-b" style="border-color: var(--border-color);">
+            <nav id="tabs-container" class="flex -mb-px" aria-label="Tabs">
+                <button id="tab-musicas" class="tab-btn active-tab">Músicas</button>
+                <button id="tab-blocos" class="tab-btn">Blocos</button>
+            </nav>
+        </div>
+
+        <div id="tab-content-container">
+            <div id="content-musicas" class="tab-content">
+                <section id="repertoire-management">
+                    <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">Gerenciar Repertório</h2>
+                    <div id="add-song-card" class="card">
+                         <h3 id="form-title" class="text-xl font-semibold mb-4">Adicionar Nova Música</h3>
+                        <form id="add-song-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <input type="text" id="song-title" placeholder="Título da Música" class="rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full" required>
+                            <input type="text" id="song-artist" placeholder="Artista" class="rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full" required>
+                            <select id="song-key" class="rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full" required><option value="">Selecione o Tom</option></select>
+                            <select id="song-tempo" class="rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full" required><option value="">Selecione o Andamento</option><option value="Lento">Lento</option><option value="Moderado">Moderado</option><option value="Rápido">Rápido</option></select>
+                            <select id="song-category" class="rounded-lg p-3 focus:ring-2 focus:ring-blue-500 focus:outline-none w-full" required><option value="">Selecione a Categoria</option></select>
+                            <div class="w-full lg:col-span-3 flex flex-col md:flex-row gap-4">
+                                <button type="submit" id="submit-button" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg transition-colors">Adicionar ao Repertório</button>
+                                <button type="button" id="cancel-edit-button" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg transition-colors hidden">Cancelar Edição</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="repertoire-list" class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+                </section>
+                <section class="mt-12">
+                    <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">Importar / Exportar Repertório</h2>
+                     <div class="card flex flex-col md:flex-row gap-4">
+                        <input type="file" id="repertoire-file-input" class="hidden" accept=".json,application/json">
+                        <button id="import-repertoire-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">Importar Repertório (JSON)</button>
+                        <button id="export-repertoire-json" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg">Exportar Repertório (JSON)</button>
+                    </div>
+                </section>
+            </div>
+            <div id="content-blocos" class="tab-content hidden">
+                <section id="setlist-profile-section" class="mb-12">
+                    <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">1. Definir Perfil do Setlist</h2>
+                    <div class="card">
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div class="md:col-span-1">
+                                <label for="setlist-max-songs" class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Quantidade Máxima de Músicas</label>
+                                <input type="number" id="setlist-max-songs" value="15" min="5" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                            <div class="md:col-span-2">
+                                <fieldset>
+                                    <legend class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Perfil do Setlist (opcional)</legend>
+                                    <div id="setlist-profile-options" class="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Manual</label></div>
+                                        <div><input type="radio" id="profile-classic" name="setlist-profile" value="classic" class="hidden profile-radio"><label for="profile-classic" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Clássico</label></div>
+                                        <div><input type="radio" id="profile-urban" name="setlist-profile" value="urban" class="hidden profile-radio"><label for="profile-urban" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Urbano</label></div>
+                                        <div><input type="radio" id="profile-raiz" name="setlist-profile" value="raiz" class="hidden profile-radio"><label for="profile-raiz" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Raiz</label></div>
+                                    </div>
+                                </fieldset>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section id="block-generator" class="mb-12">
+                    <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">2. Agrupar e Gerar Blocos</h2>
+                    <div class="card">
+                        <form id="generate-blocks-form" class="space-y-4">
+                            <div>
+                                <label for="block-size" class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Máximo de Músicas por Bloco</label>
+                                <input type="number" id="block-size" value="3" min="2" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                            </div>
+                            <fieldset>
+                                <legend class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Agrupar por (filtros):</legend>
+                                <div id="grouping-options" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2">
+                                     <div><input type="checkbox" id="cb-key" value="key" class="hidden filter-checkbox"><label for="cb-key" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Tom</label></div>
+                                     <div><input type="checkbox" id="cb-tempo" value="tempo" class="hidden filter-checkbox"><label for="cb-tempo" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Andamento</label></div>
+                                     <div><input type="checkbox" id="cb-category" value="category" class="hidden filter-checkbox"><label for="cb-category" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Categoria</label></div>
+                                     <div><input type="checkbox" id="cb-artist" value="artist" class="hidden filter-checkbox"><label for="cb-artist" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Artista</label></div>
+                                     <div><input type="checkbox" id="cb-relative" value="relative" class="hidden filter-checkbox"><label for="cb-relative" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Tons Relativos</label></div>
+                                     <div><input type="checkbox" id="cb-neighbor" value="neighbor" class="hidden filter-checkbox"><label for="cb-neighbor" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Tons Vizinhos</label></div>
+                                </div>
+                            </fieldset>
+                            <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">Gerar Blocos</button>
+                        </form>
+                    </div>
+                </section>
+                <section id="results" class="mb-12">
+                    <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">3. Edite seu Setlist (Arraste e Solte)</h2>
+                    <div id="blocks-result" class="space-y-4 min-h-[100px]"><p style="color: var(--text-muted-color);">Seus blocos aparecerão aqui.</p></div>
+                </section>
+                <section class="mb-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div>
+                        <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">4. Salvar Setlist</h2>
+                        <div class="card"><div class="flex gap-2"><input type="text" id="setlist-name" placeholder="Nome do Setlist" class="flex-grow p-3 rounded-lg"><button id="save-setlist-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Salvar</button></div></div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">5. Carregar / Importar Setlist</h2>
+                        <div class="card">
+                             <div class="flex gap-2 mb-4">
+                                <select id="saved-setlists-dropdown" class="flex-grow p-3 rounded-lg"><option value="">Nenhum salvo</option></select>
+                                <button id="load-setlist-btn" class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg">Carregar</button>
+                                <button id="delete-setlist-btn" class="bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg">Excluir</button>
+                            </div>
+                            <div class="border-t pt-4" style="border-color: var(--border-color);">
+                                <input type="file" id="setlist-file-input" class="hidden" accept=".json,application/json">
+                                <button id="import-setlist-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">Importar Setlist de Arquivo (JSON)</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <section><h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">6. Exportar Setlist</h2>
+                    <div class="card flex flex-col md:flex-row gap-4">
+                        <button id="export-setlist-json" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg">Exportar (JSON)</button>
+                        <button id="export-setlist-sbp" class="flex-1 text-white font-bold py-3 px-4 rounded-lg" style="background-color: #0d47a1;">Exportar para Songbook Pro</button>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Exportação para Songbook Pro -->
+    <div id="export-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
+        <div class="card w-full max-w-2xl max-h-[80vh] flex flex-col">
+            <h3 class="text-xl font-semibold mb-4">Exportar para Songbook Pro</h3>
+            <div class="text-sm space-y-2 mb-4 p-4 rounded-md" style="background-color: var(--input-bg);">
+                <p><strong>Passo 1:</strong> Clique no botão verde abaixo para copiar a lista de músicas.</p>
+                <p><strong>Passo 2:</strong> No Songbook Pro, crie um novo setlist e abra-o.</p>
+                <p><strong>Passo 3:</strong> Toque em "Editar", depois no ícone "+" e escolha a opção <strong>"Importar da Área de Transferência"</strong>.</p>
+            </div>
+            <textarea id="sbp-output" readonly class="w-full flex-grow p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" style="border-color: var(--border-color);"></textarea>
+            <div class="flex gap-4 mt-4">
+                <button id="copy-sbp-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">Copiar Lista de Músicas</button>
+                <button id="close-modal-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // --- 1. CONSTANTES E VARIÁVEIS ---
+    let repertoire = [];
+    let generatedBlocks = [];
+    let savedSetlists = {};
+    let editingSongId = null;
+    let lastSetlistName = '';
+
+    const TONS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb', 'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'D#m', 'A#m', 'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm'];
+    const CATEGORIAS = ['Samba de Batuque', 'Clássico', 'Samba Urbano', 'Samba de Raiz', 'Samba Rock', 'Samba-Enredo', 'Pagode'];
+    
+    const TEMPO_COLORS = { 'Lento': 'bg-sky-800 text-sky-200', 'Moderado': 'bg-amber-700 text-amber-200', 'Rápido': 'bg-red-700 text-red-200' };
+    const CATEGORY_COLORS = {
+        'Samba de Batuque': 'bg-orange-800 text-orange-200', 'Clássico': 'bg-rose-800 text-rose-200',
+        'Samba Urbano': 'bg-teal-800 text-teal-200', 'Samba de Raiz': 'bg-green-800 text-green-200',
+        'Samba Rock': 'bg-pink-800 text-pink-200', 'Samba-Enredo': 'bg-purple-800 text-purple-200',
+        'Pagode': 'bg-lime-800 text-lime-200'
+    };
+    
+    const RELATIVE_KEYS = { 'C': 'Am', 'G': 'Em', 'D': 'Bm', 'A': 'F#m', 'E': 'C#m', 'B': 'G#m', 'F#': 'D#m', 'C#': 'A#m', 'F': 'Dm', 'Bb': 'Gm', 'Eb': 'Cm', 'Ab': 'Fm', 'Db': 'Bbm', 'Gb': 'Ebm', 'Cb': 'Abm', 'Am': 'C', 'Em': 'G', 'Bm': 'D', 'F#m': 'A', 'C#m': 'E', 'G#m': 'B', 'D#m': 'F#', 'A#m': 'C#', 'Dm': 'F', 'Gm': 'Bb', 'Cm': 'Eb', 'Fm': 'Ab', 'Bbm': 'Db', 'Ebm': 'Gb', 'Abm': 'Cb'};
+    const CYCLE_OF_FIFTHS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
+
+    const sampleRepertoire = [
+        { id: 1, title: "As Rosas não Falam", artist: "Cartola", key: "Am", tempo: "Lento", category: "Clássico" }
+    ];
+
+    const dom = {
+        themeToggle: document.getElementById('theme-toggle'), themeIconSun: document.getElementById('theme-icon-sun'), themeIconMoon: document.getElementById('theme-icon-moon'),
+        tabsContainer: document.getElementById('tabs-container'), tabButtons: document.querySelectorAll('.tab-btn'), tabContents: document.querySelectorAll('.tab-content'),
+        addSongForm: document.getElementById('add-song-form'), repertoireList: document.getElementById('repertoire-list'),
+        generateBlocksForm: document.getElementById('generate-blocks-form'), blocksResult: document.getElementById('blocks-result'),
+        addSongCard: document.getElementById('add-song-card'), formTitle: document.getElementById('form-title'),
+        submitButton: document.getElementById('submit-button'), cancelEditButton: document.getElementById('cancel-edit-button'),
+        setlistNameInput: document.getElementById('setlist-name'), saveSetlistBtn: document.getElementById('save-setlist-btn'),
+        savedSetlistsDropdown: document.getElementById('saved-setlists-dropdown'), loadSetlistBtn: document.getElementById('load-setlist-btn'),
+        deleteSetlistBtn: document.getElementById('delete-setlist-btn'), exportRepertoireBtn: document.getElementById('export-repertoire-json'),
+        exportSetlistBtn: document.getElementById('export-setlist-json'),
+        exportSetlistSbpBtn: document.getElementById('export-setlist-sbp'),
+        importRepertoireBtn: document.getElementById('import-repertoire-btn'), repertoireFileInput: document.getElementById('repertoire-file-input'),
+        importSetlistBtn: document.getElementById('import-setlist-btn'), setlistFileInput: document.getElementById('setlist-file-input'),
+        exportModal: document.getElementById('export-modal'), sbpOutput: document.getElementById('sbp-output'),
+        copySbpBtn: document.getElementById('copy-sbp-btn'), closeModalBtn: document.getElementById('close-modal-btn'),
+    };
+    
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+    
+    const switchTab = (targetTabId) => {
+        dom.tabButtons.forEach(button => button.classList.toggle('active-tab', button.id === targetTabId));
+        dom.tabContents.forEach(content => content.classList.toggle('hidden', content.id !== `content-${targetTabId.split('-')[1]}`));
+    };
+    const applyTheme = (theme) => {
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        dom.themeIconSun.classList.toggle('hidden', theme !== 'dark');
+        dom.themeIconMoon.classList.toggle('hidden', theme === 'dark');
+    };
+    const toggleTheme = () => {
+        const newTheme = document.documentElement.classList.contains('dark') ? 'light' : 'dark';
+        localStorage.setItem('theme', newTheme);
+        applyTheme(newTheme);
+    };
+    const saveToLS = (key, data) => localStorage.setItem(key, JSON.stringify(data));
+    const loadFromLS = (key, defaultValue) => {
+        const saved = localStorage.getItem(key);
+        try { return saved ? JSON.parse(saved) : defaultValue; } 
+        catch (e) { console.error("Erro ao carregar dados:", e); return defaultValue; }
+    };
+    const populateSelect = (selectElement, options) => {
+        options.sort().forEach(option => {
+            const opt = document.createElement('option');
+            opt.value = opt.textContent = option;
+            selectElement.appendChild(opt);
+        });
+    };
+    const renderRepertoire = () => {
+        dom.repertoireList.innerHTML = '';
+        if (repertoire.length === 0) {
+            dom.repertoireList.innerHTML = `<p class="col-span-full text-center" style="color: var(--text-muted-color);">Seu repertório está vazio.</p>`;
+            return;
+        }
+        repertoire.forEach(song => {
+            const songCard = document.createElement('div');
+            songCard.className = 'card';
+            songCard.innerHTML = `
+                <div><h4 class="font-bold text-lg">${song.title}</h4><p class="text-sm" style="color: var(--text-muted-color);">${song.artist || 'N/A'}</p></div>
+                <div class="flex flex-wrap gap-2 text-xs font-medium mt-2">
+                    <span class="bg-blue-900 text-blue-300 px-2 py-1 rounded-full">${song.key}</span>
+                    <span class="${TEMPO_COLORS[song.tempo] || ''} px-2 py-1 rounded-full">${song.tempo}</span>
+                    <span class="${CATEGORY_COLORS[song.category] || ''} px-2 py-1 rounded-full">${song.category}</span>
+                </div>
+                <div class="flex gap-2 mt-3">
+                    <button data-id="${song.id}" class="edit-btn w-full text-white text-sm font-bold py-2 px-3 rounded-lg" style="background-color: #0d47a1;">Editar</button>
+                    <button data-id="${song.id}" class="delete-btn w-full bg-red-600 hover:bg-red-700 text-white text-sm font-bold py-2 px-3 rounded-lg">Excluir</button>
+                </div>`;
+            dom.repertoireList.appendChild(songCard);
+        });
+    };
+    const renderBlocks = (blocksToRender) => {
+        generatedBlocks = blocksToRender;
+        dom.blocksResult.innerHTML = '';
+        if (!generatedBlocks || generatedBlocks.length === 0) {
+            dom.blocksResult.innerHTML = `<p style="color: var(--text-muted-color);">Não foi possível formar blocos com os critérios selecionados.</p>`;
+            return;
+        }
+        generatedBlocks.forEach((block, index) => {
+            const blockCard = document.createElement('div');
+            blockCard.className = 'card block-card';
+            blockCard.dataset.blockId = block.id;
+            let songsHTML = block.songs.map(song =>
+                `<li class="song-item flex justify-between items-center p-3 rounded-md mb-2" style="background-color: var(--input-bg);" data-song-id="${song.id}">
+                    <span><span class="font-semibold">${song.title}</span><span class="text-sm" style="color: var(--text-muted-color);"> - ${song.artist}</span></span>
+                    <div class="flex gap-2 text-xs font-medium">
+                       <span class="bg-blue-900 text-blue-300 px-2 py-1 rounded-full">${song.key}</span>
+                       <span class="${TEMPO_COLORS[song.tempo] || 'bg-gray-700'} px-2 py-1 rounded-full">${song.tempo}</span>
+                    </div>
+                </li>`
+            ).join('');
+            blockCard.innerHTML = `
+                <div class="block-header flex justify-between items-center pb-3 mb-3">
+                    <h3 class="text-xl font-bold text-blue-500">Bloco ${index + 1}</h3>
+                    <div class="text-sm text-right" style="color: var(--text-muted-color);">${block.groupLabel}</div>
+                </div>
+                <ul class="song-list list-none p-0">${songsHTML}</ul>`;
+            dom.blocksResult.appendChild(blockCard);
+        });
+        initSortable();
+    };
+    const renderSetlistsDropdown = () => {
+        dom.savedSetlistsDropdown.innerHTML = '';
+        const names = Object.keys(savedSetlists);
+        if (names.length === 0) {
+            dom.savedSetlistsDropdown.innerHTML = '<option value="">Nenhum setlist salvo</option>';
+            return;
+        }
+        names.forEach(name => {
+            const option = document.createElement('option');
+            option.value = option.textContent = name;
+            dom.savedSetlistsDropdown.appendChild(option);
+        });
+    };
+    const setEditMode = (song) => {
+        editingSongId = song.id;
+        dom.formTitle.textContent = 'Editando Música';
+        dom.submitButton.textContent = 'Salvar Alterações';
+        dom.submitButton.classList.replace('bg-blue-600','bg-green-600');
+        dom.cancelEditButton.classList.remove('hidden');
+        dom.addSongCard.classList.add('edit-mode');
+        dom.addSongForm.elements['song-title'].value = song.title;
+        dom.addSongForm.elements['song-artist'].value = song.artist;
+        dom.addSongForm.elements['song-key'].value = song.key;
+        dom.addSongForm.elements['song-tempo'].value = song.tempo;
+        dom.addSongForm.elements['song-category'].value = song.category;
+        dom.addSongCard.scrollIntoView({ behavior: 'smooth' });
+    };
+    const cancelEditMode = () => {
+        editingSongId = null;
+        dom.formTitle.textContent = 'Adicionar Nova Música';
+        dom.submitButton.textContent = 'Adicionar ao Repertório';
+        dom.submitButton.classList.replace('bg-green-600', 'bg-blue-600');
+        dom.cancelEditButton.classList.add('hidden');
+        dom.addSongCard.classList.remove('edit-mode');
+        dom.addSongForm.reset();
+    };
+    const initSortable = () => {
+        new Sortable(dom.blocksResult, { animation: 150, ghostClass: 'sortable-ghost', handle: '.block-header', onEnd: (evt) => {
+            const movedBlock = generatedBlocks.splice(evt.oldIndex, 1)[0];
+            generatedBlocks.splice(evt.newIndex, 0, movedBlock);
+        }});
+        document.querySelectorAll('.song-list').forEach(list => {
+            new Sortable(list, { group: 'shared-songs', animation: 150, ghostClass: 'sortable-ghost', onEnd: (evt) => {
+                const fromBlockId = evt.from.closest('.block-card').dataset.blockId, toBlockId = evt.to.closest('.block-card').dataset.blockId, songId = evt.item.dataset.songId;
+                const fromBlock = generatedBlocks.find(b => b.id == fromBlockId), toBlock = generatedBlocks.find(b => b.id == toBlockId);
+                const songIndex = fromBlock.songs.findIndex(s => s.id == songId);
+                const [movedSong] = fromBlock.songs.splice(songIndex, 1);
+                toBlock.songs.splice(evt.newIndex, 0, movedSong);
+            }});
+        });
+    };
+    const downloadFile = (filename, content, mimeType) => {
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+    const handleFileImport = (event, importType) => {
+        const file = event.target.files[0];
+        if (!file) return;
+        if (file.type !== "application/json") {
+            alert("Erro: Por favor, selecione um arquivo JSON válido."); return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                if (importType === 'repertoire') {
+                    if (!Array.isArray(data) || (data.length > 0 && typeof data[0].title === 'undefined')) { throw new Error("Estrutura de JSON inválida para repertório."); }
+                    const existingIds = new Set(repertoire.map(song => song.id));
+                    const newSongs = data.filter(song => !existingIds.has(song.id));
+                    repertoire.push(...newSongs);
+                    saveToLS('resetV15_repertoire', repertoire);
+                    renderRepertoire();
+                    alert(`${newSongs.length} novas músicas importadas com sucesso!`);
+                } 
+                else if (importType === 'setlist') {
+                    if (!Array.isArray(data) || (data.length > 0 && typeof data[0].songs === 'undefined')) { throw new Error("Estrutura de JSON inválida para setlist."); }
+                    renderBlocks(data);
+                    switchTab('tab-blocos');
+                    alert(`Setlist importado com sucesso!`);
+                }
+            } catch (error) {
+                alert(`Erro ao importar o arquivo: ${error.message}`);
+            } finally {
+                event.target.value = '';
+            }
+        };
+        reader.readAsText(file);
+    };
+    const handleFormSubmit = (event) => {
+        event.preventDefault();
+        const songData = {
+            title: dom.addSongForm.elements['song-title'].value.trim(), artist: dom.addSongForm.elements['song-artist'].value.trim(),
+            key: dom.addSongForm.elements['song-key'].value, tempo: dom.addSongForm.elements['song-tempo'].value,
+            category: dom.addSongForm.elements['song-category'].value,
+        };
+        if (!songData.title || !songData.artist || !songData.key || !songData.tempo || !songData.category) {
+            alert("Por favor, preencha todos os campos."); return;
+        }
+        if (editingSongId) {
+            const index = repertoire.findIndex(s => s.id === editingSongId);
+            repertoire[index] = { ...repertoire[index], ...songData };
+        } else {
+            repertoire.push({ id: Date.now() + Math.random(), ...songData });
+        }
+        saveToLS('resetV15_repertoire', repertoire);
+        renderRepertoire();
+        cancelEditMode();
+    };
+    const handleRepertoireClick = (event) => {
+        const target = event.target.closest('button');
+        if (!target) return;
+        const songId = parseFloat(target.dataset.id);
+        if (target.classList.contains('edit-btn')) { setEditMode(repertoire.find(s => s.id === songId)); }
+        if (target.classList.contains('delete-btn')) {
+            repertoire = repertoire.filter(s => s.id !== songId);
+            saveToLS('resetV15_repertoire', repertoire);
+            renderRepertoire();
+        }
+    };
+    const handleGenerateBlocks = (event) => {
+        event.preventDefault();
+        const blockSize = parseInt(document.getElementById('block-size').value, 10);
+        const maxSongs = parseInt(document.getElementById('setlist-max-songs').value, 10);
+        const selectedProfile = document.querySelector('input[name="setlist-profile"]:checked').value;
+        const selectedCriteria = Array.from(document.querySelectorAll('#grouping-options input:checked')).map(cb => cb.value);
+        if (selectedCriteria.length === 0) { alert('Por favor, selecione pelo menos um filtro de agrupamento.'); return; }
+
+        let repertoireToProcess = [];
+        if (selectedProfile === 'manual') {
+            repertoireToProcess = [...repertoire];
+        } else {
+            let primarySongs = [], otherSongs = [];
+            repertoire.forEach(song => {
+                if ((selectedProfile === 'classic' && song.category === 'Clássico') ||
+                    (selectedProfile === 'urban' && song.category === 'Samba Urbano') ||
+                    (selectedProfile === 'raiz' && (song.category === 'Samba de Raiz' || song.category === 'Samba de Batuque'))) {
+                    primarySongs.push(song);
+                } else { otherSongs.push(song); }
+            });
+
+            const targetPrimaryCount = Math.ceil(maxSongs * 0.67);
+            const targetOtherCount = maxSongs - targetPrimaryCount;
+            
+            repertoireToProcess = [ ...shuffleArray(primarySongs).slice(0, targetPrimaryCount), ...shuffleArray(otherSongs).slice(0, targetOtherCount) ];
+
+            if (repertoireToProcess.length < maxSongs) {
+                 const needed = maxSongs - repertoireToProcess.length;
+                 const remainingSongs = repertoire.filter(song => !repertoireToProcess.find(s => s.id === song.id));
+                 repertoireToProcess.push(...shuffleArray(remainingSongs).slice(0, needed));
+            }
+            if(repertoireToProcess.length > maxSongs) {
+                repertoireToProcess = repertoireToProcess.slice(0, maxSongs);
+            }
+        }
+
+        const getRootKey = (key) => key.endsWith('m') ? RELATIVE_KEYS[key] : key;
+        let groupedSongs = repertoireToProcess.reduce((acc, song) => {
+            let keyParts = [];
+            if (selectedCriteria.includes('relative')) keyParts.push(`rel:${getRootKey(song.key)}`);
+            if (selectedCriteria.includes('neighbor')) {
+                const rootKey = getRootKey(song.key);
+                const index = CYCLE_OF_FIFTHS.indexOf(rootKey);
+                const neighborKey = index > -1 ? (index > 0 ? CYCLE_OF_FIFTHS[index - 1] : CYCLE_OF_FIFTHS[CYCLE_OF_FIFTHS.length - 1]) : rootKey;
+                keyParts.push(`nei:${neighborKey}`);
+            }
+            ['key', 'tempo', 'category', 'artist'].forEach(c => { if (selectedCriteria.includes(c)) keyParts.push(`${c}:${song[c]}`); });
+            const groupKey = keyParts.join(' | ');
+            if (!acc[groupKey]) acc[groupKey] = [];
+            acc[groupKey].push(song);
+            return acc;
+        }, {});
+
+        let finalBlocks = [];
+        for (const groupKey in groupedSongs) {
+            const songsInGroup = [...shuffleArray(groupedSongs[groupKey])];
+            const label = groupKey.split(' | ').map(part => part.replace(/rel:|nei:|key:|tempo:|category:|artist:/, (match) => ({'rel:':'Rel: ','nei:':'Viz: ','key:':'Tom: ','tempo:':'And: ','category:':'Cat: ','artist:':'Art: '}[match]))).join(', ');
+            for (let i = 0; i < songsInGroup.length; i += blockSize) {
+                const chunk = songsInGroup.slice(i, i + blockSize);
+                if (chunk.length > 0) {
+                    finalBlocks.push({ id: Date.now() + Math.random(), groupLabel: label, songs: chunk });
+                }
+            }
+        }
+        renderBlocks(finalBlocks);
+    };
+
+    const initializeApp = () => {
+        applyTheme(localStorage.getItem('theme') || 'dark');
+        repertoire = loadFromLS('resetV15_repertoire', sampleRepertoire);
+        savedSetlists = loadFromLS('resetV15_setlists', {});
+        populateSelect(document.getElementById('song-key'), TONS);
+        populateSelect(document.getElementById('song-category'), CATEGORIAS);
+        renderRepertoire();
+        renderSetlistsDropdown();
+
+        dom.tabsContainer.addEventListener('click', (e) => { if (e.target.classList.contains('tab-btn')) switchTab(e.target.id); });
+        dom.themeToggle.addEventListener('click', toggleTheme);
+        dom.addSongForm.addEventListener('submit', handleFormSubmit);
+        dom.repertoireList.addEventListener('click', handleRepertoireClick);
+        dom.cancelEditButton.addEventListener('click', cancelEditMode);
+        dom.generateBlocksForm.addEventListener('submit', handleGenerateBlocks);
+        
+        dom.saveSetlistBtn.addEventListener('click', () => {
+            const name = dom.setlistNameInput.value.trim();
+            if (!name || generatedBlocks.length === 0) { alert('Insira um nome e gere um setlist para salvar.'); return; }
+            savedSetlists[name] = JSON.parse(JSON.stringify(generatedBlocks));
+            lastSetlistName = name; 
+            saveToLS('resetV15_setlists', savedSetlists);
+            renderSetlistsDropdown();
+            alert(`Setlist "${name}" salvo!`);
+        });
+        dom.loadSetlistBtn.addEventListener('click', () => {
+            const name = dom.savedSetlistsDropdown.value;
+            if (!name || !savedSetlists[name]) { alert('Selecione um setlist válido.'); return; }
+            renderBlocks(savedSetlists[name]);
+            dom.setlistNameInput.value = name;
+            lastSetlistName = name; 
+        });
+        dom.deleteSetlistBtn.addEventListener('click', () => {
+            const name = dom.savedSetlistsDropdown.value;
+            if (!name) { alert('Selecione um setlist para excluir.'); return; }
+            delete savedSetlists[name];
+            saveToLS('resetV15_setlists', savedSetlists);
+            renderSetlistsDropdown();
+        });
+
+        dom.exportRepertoireBtn.addEventListener('click', () => downloadFile('repertorio.json', JSON.stringify(repertoire, null, 2), 'application/json'));
+        dom.exportSetlistBtn.addEventListener('click', () => {
+            if (generatedBlocks.length === 0) { alert('Gere um setlist antes de exportar.'); return; }
+            downloadFile('setlist.json', JSON.stringify(generatedBlocks, null, 2), 'application/json');
+        });
+        
+        dom.importRepertoireBtn.addEventListener('click', () => dom.repertoireFileInput.click());
+        dom.repertoireFileInput.addEventListener('change', (e) => handleFileImport(e, 'repertoire'));
+        dom.importSetlistBtn.addEventListener('click', () => dom.setlistFileInput.click());
+        dom.setlistFileInput.addEventListener('change', (e) => handleFileImport(e, 'setlist'));
+
+        dom.exportSetlistSbpBtn.addEventListener('click', () => {
+            if (generatedBlocks.length === 0) { alert('Gere um setlist antes de exportar.'); return; }
+            const txtContent = generatedBlocks.flatMap(block => block.songs).map(song => song.title).join('\n');
+            dom.sbpOutput.value = txtContent;
+            dom.exportModal.classList.remove('hidden');
+        });
+        dom.closeModalBtn.addEventListener('click', () => dom.exportModal.classList.add('hidden'));
+        dom.copySbpBtn.addEventListener('click', () => {
+            dom.sbpOutput.select();
+            document.execCommand('copy');
+            dom.copySbpBtn.textContent = 'Copiado!';
+            setTimeout(() => { dom.copySbpBtn.textContent = 'Copiar Lista de Músicas'; }, 2000);
+        });
+
+        switchTab('tab-musicas');
+    };
+    
+    initializeApp();
+});
+</script>
+</body>
+</html>
