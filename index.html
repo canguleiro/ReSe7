@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>#ReSet</title>
+    <title>#ReSe7</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,11 +37,11 @@
     </style>
 </head>
 <body>
-    <div class="container mx-auto p-4 md:p-8 max-w-7xl">
+    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
         <header class="text-center mb-6 flex justify-between items-center">
              <div></div>
             <div>
-                <h1 class="text-4xl md:text-5xl font-bold text-blue-500">#ReSet</h1>
+                <h1 class="text-4xl md:text-5xl font-bold text-blue-500">#ReSe7</h1>
                 <p style="color: var(--text-muted-color);" class="mt-2">Seu Repertório, Seu Setlist</p>
             </div>
             <button id="theme-toggle" class="p-2 rounded-full" style="background-color: var(--input-bg);">
@@ -97,9 +97,9 @@
                             </div>
                             <div class="md:col-span-2">
                                 <fieldset>
-                                    <legend class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Perfil do Setlist (opcional)</legend>
+                                    <legend class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Perfil do Setlist</legend>
                                     <div id="setlist-profile-options" class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Manual</label></div>
+                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Aleatória</label></div>
                                         <div><input type="radio" id="profile-classic" name="setlist-profile" value="classic" class="hidden profile-radio"><label for="profile-classic" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Clássico</label></div>
                                         <div><input type="radio" id="profile-urban" name="setlist-profile" value="urban" class="hidden profile-radio"><label for="profile-urban" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Urbano</label></div>
                                         <div><input type="radio" id="profile-raiz" name="setlist-profile" value="raiz" class="hidden profile-radio"><label for="profile-raiz" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Raiz</label></div>
@@ -393,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const existingIds = new Set(repertoire.map(song => song.id));
                     const newSongs = data.filter(song => !existingIds.has(song.id));
                     repertoire.push(...newSongs);
-                    saveToLS('resetV15_repertoire', repertoire);
+                    saveToLS('rese7_v1_repertoire', repertoire);
                     renderRepertoire();
                     alert(`${newSongs.length} novas músicas importadas com sucesso!`);
                 } 
@@ -427,7 +427,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             repertoire.push({ id: Date.now() + Math.random(), ...songData });
         }
-        saveToLS('resetV15_repertoire', repertoire);
+        saveToLS('rese7_v1_repertoire', repertoire);
         renderRepertoire();
         cancelEditMode();
     };
@@ -438,7 +438,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.classList.contains('edit-btn')) { setEditMode(repertoire.find(s => s.id === songId)); }
         if (target.classList.contains('delete-btn')) {
             repertoire = repertoire.filter(s => s.id !== songId);
-            saveToLS('resetV15_repertoire', repertoire);
+            saveToLS('rese7_v1_repertoire', repertoire);
             renderRepertoire();
         }
     };
@@ -511,8 +511,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initializeApp = () => {
         applyTheme(localStorage.getItem('theme') || 'dark');
-        repertoire = loadFromLS('resetV15_repertoire', sampleRepertoire);
-        savedSetlists = loadFromLS('resetV15_setlists', {});
+        repertoire = loadFromLS('rese7_v1_repertoire', sampleRepertoire);
+        savedSetlists = loadFromLS('rese7_v1_setlists', {});
         populateSelect(document.getElementById('song-key'), TONS);
         populateSelect(document.getElementById('song-category'), CATEGORIAS);
         renderRepertoire();
@@ -530,7 +530,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!name || generatedBlocks.length === 0) { alert('Insira um nome e gere um setlist para salvar.'); return; }
             savedSetlists[name] = JSON.parse(JSON.stringify(generatedBlocks));
             lastSetlistName = name; 
-            saveToLS('resetV15_setlists', savedSetlists);
+            saveToLS('rese7_v1_setlists', savedSetlists);
             renderSetlistsDropdown();
             alert(`Setlist "${name}" salvo!`);
         });
@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const name = dom.savedSetlistsDropdown.value;
             if (!name) { alert('Selecione um setlist para excluir.'); return; }
             delete savedSetlists[name];
-            saveToLS('resetV15_setlists', savedSetlists);
+            saveToLS('rese7_v1_setlists', savedSetlists);
             renderSetlistsDropdown();
         });
 
