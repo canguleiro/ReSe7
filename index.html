@@ -37,7 +37,7 @@
     </style>
 </head>
 <body>
-    <div class="container mx-auto p-4 md:p-8 max-w-5xl">
+    <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <header class="text-center mb-6 flex justify-between items-center">
              <div></div>
             <div>
@@ -99,14 +99,14 @@
                     <div class="card">
                         <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div class="md:col-span-1">
-                                <label for="setlist-max-songs" class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Quantidade Máxima de Músicas</label>
-                                <input type="number" id="setlist-max-songs" value="15" min="5" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
+                                <label for="setlist-max-songs" class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Total de Músicas</label>
+                                <input type="number" id="setlist-max-songs" value="80" min="5" class="w-full p-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
                             </div>
                             <div class="md:col-span-2">
                                 <fieldset>
                                     <legend class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Perfil do Setlist</legend>
                                     <div id="setlist-profile-options" class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Aleatória</label></div>
+                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Aleatório</label></div>
                                         <div><input type="radio" id="profile-classic" name="setlist-profile" value="classic" class="hidden profile-radio"><label for="profile-classic" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Clássico</label></div>
                                         <div><input type="radio" id="profile-urban" name="setlist-profile" value="urban" class="hidden profile-radio"><label for="profile-urban" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Urbano</label></div>
                                         <div><input type="radio" id="profile-raiz" name="setlist-profile" value="raiz" class="hidden profile-radio"><label for="profile-raiz" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Raiz</label></div>
@@ -140,52 +140,25 @@
                     </div>
                 </section>
                 <section id="results" class="mb-12">
-                    <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">3. Edite seu Setlist (Arraste e Solte)</h2>
-                    <div id="blocks-result" class="space-y-4 min-h-[100px]"><p style="color: var(--text-muted-color);">Seus blocos aparecerão aqui.</p></div>
-                </section>
-                <section class="mb-12 grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div>
-                        <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">4. Salvar Setlist</h2>
-                        <div class="card"><div class="flex gap-2"><input type="text" id="setlist-name" placeholder="Nome do Setlist" class="flex-grow p-3 rounded-lg"><button id="save-setlist-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-lg">Salvar</button></div></div>
-                    </div>
-                    <div>
-                        <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">5. Carregar / Importar Setlist</h2>
-                        <div class="card">
-                             <div class="flex gap-2 mb-4">
-                                <select id="saved-setlists-dropdown" class="flex-grow p-3 rounded-lg"><option value="">Nenhum salvo</option></select>
-                                <button id="load-setlist-btn" class="bg-purple-600 hover:bg-purple-700 text-white py-3 px-4 rounded-lg">Carregar</button>
-                                <button id="delete-setlist-btn" class="bg-red-600 hover:bg-red-700 text-white py-3 px-4 rounded-lg">Excluir</button>
-                            </div>
-                            <div class="border-t pt-4" style="border-color: var(--border-color);">
-                                <input type="file" id="setlist-file-input" class="hidden" accept=".json,application/json">
-                                <button id="import-setlist-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">Importar Setlist de Arquivo (JSON)</button>
-                            </div>
+                    <div class="flex justify-between items-center border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">
+                        <h2 class="text-2xl font-bold">3. Edite seu Setlist</h2>
+                        <div class="flex items-center gap-3">
+                            <input type="text" id="export-setlist-name" placeholder="Nome do Setlist" class="rounded-lg p-2 text-sm w-40">
+                            <input type="file" id="setlist-file-input" class="hidden" accept=".json,application/json">
+                            <button id="import-setlist-btn" title="Importar Setlist (JSON)" class="p-2 rounded-full bg-green-600 hover:bg-green-700 text-white">
+                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <button id="export-setlist-json" title="Exportar Setlist (JSON)" class="p-2 rounded-full bg-gray-500 hover:bg-gray-600 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
                         </div>
                     </div>
+                    <div id="blocks-result" class="space-y-4 min-h-[100px]"><p style="color: var(--text-muted-color);">Seus blocos aparecerão aqui.</p></div>
                 </section>
-                <section><h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">6. Exportar Setlist</h2>
-                    <div class="card flex flex-col md:flex-row gap-4">
-                        <button id="export-setlist-json" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg">Exportar (JSON)</button>
-                        <button id="export-setlist-sbp" class="flex-1 text-white font-bold py-3 px-4 rounded-lg" style="background-color: #0d47a1;">Exportar para Songbook Pro</button>
-                    </div>
-                </section>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal de Exportação para Songbook Pro -->
-    <div id="export-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 modal-overlay hidden">
-        <div class="card w-full max-w-2xl max-h-[80vh] flex flex-col">
-            <h3 class="text-xl font-semibold mb-4">Exportar para Songbook Pro</h3>
-            <div class="text-sm space-y-2 mb-4 p-4 rounded-md" style="background-color: var(--input-bg);">
-                <p><strong>Passo 1:</strong> Clique no botão verde abaixo para copiar a lista de músicas.</p>
-                <p><strong>Passo 2:</strong> No Songbook Pro, crie um novo setlist e abra-o.</p>
-                <p><strong>Passo 3:</strong> Toque em "Editar", depois no ícone "+" e escolha a opção <strong>"Importar da Área de Transferência"</strong>.</p>
-            </div>
-            <textarea id="sbp-output" readonly class="w-full flex-grow p-3 rounded-lg border focus:ring-2 focus:ring-blue-500 focus:outline-none resize-none" style="border-color: var(--border-color);"></textarea>
-            <div class="flex gap-4 mt-4">
-                <button id="copy-sbp-btn" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">Copiar Lista de Músicas</button>
-                <button id="close-modal-btn" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg">Fechar</button>
             </div>
         </div>
     </div>
@@ -195,9 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- 1. CONSTANTES E VARIÁVEIS ---
     let repertoire = [];
     let generatedBlocks = [];
-    let savedSetlists = {};
     let editingSongId = null;
-    let lastSetlistName = '';
 
     const TONS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'C#', 'F', 'Bb', 'Eb', 'Ab', 'Db', 'Gb', 'Cb', 'Am', 'Em', 'Bm', 'F#m', 'C#m', 'G#m', 'D#m', 'A#m', 'Dm', 'Gm', 'Cm', 'Fm', 'Bbm', 'Ebm'];
     const CATEGORIAS = ['Samba de Batuque', 'Clássico', 'Samba Urbano', 'Samba de Raiz', 'Samba Rock', 'Samba-Enredo', 'Pagode'];
@@ -222,15 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
         generateBlocksForm: document.getElementById('generate-blocks-form'), blocksResult: document.getElementById('blocks-result'),
         addSongCard: document.getElementById('add-song-card'), formTitle: document.getElementById('form-title'),
         submitButton: document.getElementById('submit-button'), cancelEditButton: document.getElementById('cancel-edit-button'),
-        setlistNameInput: document.getElementById('setlist-name'), saveSetlistBtn: document.getElementById('save-setlist-btn'),
-        savedSetlistsDropdown: document.getElementById('saved-setlists-dropdown'), loadSetlistBtn: document.getElementById('load-setlist-btn'),
-        deleteSetlistBtn: document.getElementById('delete-setlist-btn'), exportRepertoireBtn: document.getElementById('export-repertoire-json'),
+        exportRepertoireBtn: document.getElementById('export-repertoire-json'),
         exportSetlistBtn: document.getElementById('export-setlist-json'),
-        exportSetlistSbpBtn: document.getElementById('export-setlist-sbp'),
+        exportSetlistName: document.getElementById('export-setlist-name'),
         importRepertoireBtn: document.getElementById('import-repertoire-btn'), repertoireFileInput: document.getElementById('repertoire-file-input'),
         importSetlistBtn: document.getElementById('import-setlist-btn'), setlistFileInput: document.getElementById('setlist-file-input'),
-        exportModal: document.getElementById('export-modal'), sbpOutput: document.getElementById('sbp-output'),
-        copySbpBtn: document.getElementById('copy-sbp-btn'), closeModalBtn: document.getElementById('close-modal-btn'),
     };
     
     const shuffleArray = (array) => {
@@ -321,19 +288,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         initSortable();
     };
-    const renderSetlistsDropdown = () => {
-        dom.savedSetlistsDropdown.innerHTML = '';
-        const names = Object.keys(savedSetlists);
-        if (names.length === 0) {
-            dom.savedSetlistsDropdown.innerHTML = '<option value="">Nenhum setlist salvo</option>';
-            return;
-        }
-        names.forEach(name => {
-            const option = document.createElement('option');
-            option.value = option.textContent = name;
-            dom.savedSetlistsDropdown.appendChild(option);
-        });
-    };
     const setEditMode = (song) => {
         editingSongId = song.id;
         dom.formTitle.textContent = 'Editando Música';
@@ -398,7 +352,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const existingIds = new Set(repertoire.map(song => song.id));
                     const newSongs = data.filter(song => !existingIds.has(song.id));
                     repertoire.push(...newSongs);
-                    saveToLS('rese7_v1_repertoire', repertoire);
+                    saveToLS('rese7_v2_repertoire', repertoire);
                     renderRepertoire();
                     alert(`${newSongs.length} novas músicas importadas com sucesso!`);
                 } 
@@ -432,7 +386,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             repertoire.push({ id: Date.now() + Math.random(), ...songData });
         }
-        saveToLS('rese7_v1_repertoire', repertoire);
+        saveToLS('rese7_v2_repertoire', repertoire);
         renderRepertoire();
         cancelEditMode();
     };
@@ -443,7 +397,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (target.classList.contains('edit-btn')) { setEditMode(repertoire.find(s => s.id === songId)); }
         if (target.classList.contains('delete-btn')) {
             repertoire = repertoire.filter(s => s.id !== songId);
-            saveToLS('rese7_v1_repertoire', repertoire);
+            saveToLS('rese7_v2_repertoire', repertoire);
             renderRepertoire();
         }
     };
@@ -516,12 +470,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const initializeApp = () => {
         applyTheme(localStorage.getItem('theme') || 'dark');
-        repertoire = loadFromLS('rese7_v1_repertoire', sampleRepertoire);
-        savedSetlists = loadFromLS('rese7_v1_setlists', {});
+        repertoire = loadFromLS('rese7_v2_repertoire', sampleRepertoire);
         populateSelect(document.getElementById('song-key'), TONS);
         populateSelect(document.getElementById('song-category'), CATEGORIAS);
         renderRepertoire();
-        renderSetlistsDropdown();
 
         dom.tabsContainer.addEventListener('click', (e) => { if (e.target.classList.contains('tab-btn')) switchTab(e.target.id); });
         dom.themeToggle.addEventListener('click', toggleTheme);
@@ -530,54 +482,20 @@ document.addEventListener('DOMContentLoaded', () => {
         dom.cancelEditButton.addEventListener('click', cancelEditMode);
         dom.generateBlocksForm.addEventListener('submit', handleGenerateBlocks);
         
-        dom.saveSetlistBtn.addEventListener('click', () => {
-            const name = dom.setlistNameInput.value.trim();
-            if (!name || generatedBlocks.length === 0) { alert('Insira um nome e gere um setlist para salvar.'); return; }
-            savedSetlists[name] = JSON.parse(JSON.stringify(generatedBlocks));
-            lastSetlistName = name; 
-            saveToLS('rese7_v1_setlists', savedSetlists);
-            renderSetlistsDropdown();
-            alert(`Setlist "${name}" salvo!`);
-        });
-        dom.loadSetlistBtn.addEventListener('click', () => {
-            const name = dom.savedSetlistsDropdown.value;
-            if (!name || !savedSetlists[name]) { alert('Selecione um setlist válido.'); return; }
-            renderBlocks(savedSetlists[name]);
-            dom.setlistNameInput.value = name;
-            lastSetlistName = name; 
-        });
-        dom.deleteSetlistBtn.addEventListener('click', () => {
-            const name = dom.savedSetlistsDropdown.value;
-            if (!name) { alert('Selecione um setlist para excluir.'); return; }
-            delete savedSetlists[name];
-            saveToLS('rese7_v1_setlists', savedSetlists);
-            renderSetlistsDropdown();
-        });
-
         dom.exportRepertoireBtn.addEventListener('click', () => downloadFile('repertorio.json', JSON.stringify(repertoire, null, 2), 'application/json'));
         dom.exportSetlistBtn.addEventListener('click', () => {
             if (generatedBlocks.length === 0) { alert('Gere um setlist antes de exportar.'); return; }
-            downloadFile('setlist.json', JSON.stringify(generatedBlocks, null, 2), 'application/json');
+            const name = dom.exportSetlistName.value.trim() || 'setlist';
+            const date = new Date();
+            const formattedDate = `${date.getDate().toString().padStart(2, '0')}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getFullYear()}`;
+            const filename = `${name}-${formattedDate}.json`;
+            downloadFile(filename, JSON.stringify(generatedBlocks, null, 2), 'application/json');
         });
         
         dom.importRepertoireBtn.addEventListener('click', () => dom.repertoireFileInput.click());
         dom.repertoireFileInput.addEventListener('change', (e) => handleFileImport(e, 'repertoire'));
         dom.importSetlistBtn.addEventListener('click', () => dom.setlistFileInput.click());
         dom.setlistFileInput.addEventListener('change', (e) => handleFileImport(e, 'setlist'));
-
-        dom.exportSetlistSbpBtn.addEventListener('click', () => {
-            if (generatedBlocks.length === 0) { alert('Gere um setlist antes de exportar.'); return; }
-            const txtContent = generatedBlocks.flatMap(block => block.songs).map(song => song.title).join('\n');
-            dom.sbpOutput.value = txtContent;
-            dom.exportModal.classList.remove('hidden');
-        });
-        dom.closeModalBtn.addEventListener('click', () => dom.exportModal.classList.add('hidden'));
-        dom.copySbpBtn.addEventListener('click', () => {
-            dom.sbpOutput.select();
-            document.execCommand('copy');
-            dom.copySbpBtn.textContent = 'Copiado!';
-            setTimeout(() => { dom.copySbpBtn.textContent = 'Copiar Lista de Músicas'; }, 2000);
-        });
 
         switchTab('tab-musicas');
     };
