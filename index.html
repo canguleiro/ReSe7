@@ -106,7 +106,7 @@
                                 <fieldset>
                                     <legend class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Perfil do Setlist</legend>
                                     <div id="setlist-profile-options" class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Aleatório</label></div>
+                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Aleatória</label></div>
                                         <div><input type="radio" id="profile-classic" name="setlist-profile" value="classic" class="hidden profile-radio"><label for="profile-classic" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Clássico</label></div>
                                         <div><input type="radio" id="profile-urban" name="setlist-profile" value="urban" class="hidden profile-radio"><label for="profile-urban" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Urbano</label></div>
                                         <div><input type="radio" id="profile-raiz" name="setlist-profile" value="raiz" class="hidden profile-radio"><label for="profile-raiz" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Raiz</label></div>
@@ -213,9 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const RELATIVE_KEYS = { 'C': 'Am', 'G': 'Em', 'D': 'Bm', 'A': 'F#m', 'E': 'C#m', 'B': 'G#m', 'F#': 'D#m', 'C#': 'A#m', 'F': 'Dm', 'Bb': 'Gm', 'Eb': 'Cm', 'Ab': 'Fm', 'Db': 'Bbm', 'Gb': 'Ebm', 'Cb': 'Abm', 'Am': 'C', 'Em': 'G', 'Bm': 'D', 'F#m': 'A', 'C#m': 'E', 'G#m': 'B', 'D#m': 'F#', 'A#m': 'C#', 'Dm': 'F', 'Gm': 'Bb', 'Cm': 'Eb', 'Fm': 'Ab', 'Bbm': 'Db', 'Ebm': 'Gb', 'Abm': 'Cb'};
     const CYCLE_OF_FIFTHS = ['C', 'G', 'D', 'A', 'E', 'B', 'F#', 'Db', 'Ab', 'Eb', 'Bb', 'F'];
 
-    const sampleRepertoire = [
-        { id: 1, title: "As Rosas não Falam", artist: "Cartola", key: "Am", tempo: "Lento", category: "Clássico" }
-    ];
+    const sampleRepertoire = [];
 
     const dom = {
         themeToggle: document.getElementById('theme-toggle'), themeIconSun: document.getElementById('theme-icon-sun'), themeIconMoon: document.getElementById('theme-icon-moon'),
