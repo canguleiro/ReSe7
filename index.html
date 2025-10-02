@@ -60,7 +60,22 @@
         <div id="tab-content-container">
             <div id="content-musicas" class="tab-content">
                 <section id="repertoire-management">
-                    <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">Gerenciar Repertório</h2>
+                    <div class="flex justify-between items-center border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">
+                        <h2 class="text-2xl font-bold">Gerenciar Repertório</h2>
+                        <div class="flex gap-3">
+                            <input type="file" id="repertoire-file-input" class="hidden" accept=".json,application/json">
+                            <button id="import-repertoire-btn" title="Importar Repertório (JSON)" class="p-2 rounded-full bg-green-600 hover:bg-green-700 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                            <button id="export-repertoire-json" title="Exportar Repertório (JSON)" class="p-2 rounded-full bg-gray-500 hover:bg-gray-600 text-white">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
                     <div id="add-song-card" class="card">
                          <h3 id="form-title" class="text-xl font-semibold mb-4">Adicionar Nova Música</h3>
                         <form id="add-song-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -77,14 +92,6 @@
                     </div>
                     <div id="repertoire-list" class="mt-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
                 </section>
-                <section class="mt-12">
-                    <h2 class="text-2xl font-bold border-b-2 pb-2 mb-6" style="border-color: var(--border-color);">Importar / Exportar Repertório</h2>
-                     <div class="card flex flex-col md:flex-row gap-4">
-                        <input type="file" id="repertoire-file-input" class="hidden" accept=".json,application/json">
-                        <button id="import-repertoire-btn" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg">Importar Repertório (JSON)</button>
-                        <button id="export-repertoire-json" class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg">Exportar Repertório (JSON)</button>
-                    </div>
-                </section>
             </div>
             <div id="content-blocos" class="tab-content hidden">
                 <section id="setlist-profile-section" class="mb-12">
@@ -99,7 +106,7 @@
                                 <fieldset>
                                     <legend class="block mb-2 text-sm font-medium" style="color: var(--text-muted-color);">Perfil do Setlist</legend>
                                     <div id="setlist-profile-options" class="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Aleatória</label></div>
+                                        <div><input type="radio" id="profile-manual" name="setlist-profile" value="manual" class="hidden profile-radio" checked><label for="profile-manual" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Aleatório</label></div>
                                         <div><input type="radio" id="profile-classic" name="setlist-profile" value="classic" class="hidden profile-radio"><label for="profile-classic" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Clássico</label></div>
                                         <div><input type="radio" id="profile-urban" name="setlist-profile" value="urban" class="hidden profile-radio"><label for="profile-urban" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Urbano</label></div>
                                         <div><input type="radio" id="profile-raiz" name="setlist-profile" value="raiz" class="hidden profile-radio"><label for="profile-raiz" class="block text-center cursor-pointer p-3 rounded-lg border-2" style="border-color: var(--border-color);">Raiz</label></div>
@@ -582,3 +589,4 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
